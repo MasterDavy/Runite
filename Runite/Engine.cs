@@ -20,29 +20,46 @@ namespace Runite
         public static string currentType;
         public static int score = 0;
         public static Label label1 = new Label();
+        public static Label label2 = new Label();
+        public static ProgressBar progbar = new ProgressBar();
         public static void Start()
         {
-            int x = Form1.ActiveForm.Width, y = Form1.ActiveForm.Height;
+            int x = Game.ActiveForm.Width, y = Game.ActiveForm.Height;
             for (int i = 0; i < 15; i++)
                 for (int j = 0; j < 10; j++)
                 {
                     tiles[i, j] = new Tile(i, j);
                     tiles[i, j].Size = new Size(y / 20, y / 20);
-                    tiles[i, j].Location = new Point(j * (y / 19) + x * 27 / 100, i * (y / 19) + y * 5 / 100);
-                    Form1.ActiveForm.Controls.Add(tiles[i, j]);
+                    tiles[i, j].Location = new Point(j * (y / 20) + x * 25 / 100, i * (y / 20) + y * 5 / 100);
+                    Game.ActiveForm.Controls.Add(tiles[i, j]);
                     tiles[i, j].currentRune = new Rune(shuffle.Next(100));
                     tiles[i, j].BackColor = tiles[i, j].currentRune.color;
+                    tiles[i, j].BorderStyle = BorderStyle.FixedSingle;
                     tiles[i, j].Empty = false;
                     tiles[i, j].MouseDown += MouseHover1;
                     tiles[i, j].MouseEnter += MouseEnter1;
                     tiles[i, j].MouseUp += MouseUp1;
                 }
             label1.Size = new Size(150, 75);
-            label1.Location = new Point(x - 170, 200);
-            label1.Text = "SCORE:\n     0";
-            label1.Font = new Font("Shadow Gothic", 16);
-            label1.ForeColor = Color.BlueViolet;
-            Form1.ActiveForm.Controls.Add(label1);
+            label1.Location = new Point(x - 175, 200);
+            label1.Text = "SCORE:\n0";
+            label1.Font = new Font("Bauhaus 93", 16);
+            label1.ForeColor = Color.Violet;
+            Game.ActiveForm.Controls.Add(label1);
+            progbar.Size = new Size((y/20)*10,30);
+            progbar.Location = new Point(x*25/100, y-100);
+            progbar.Maximum = 300;
+            progbar.Minimum = 0;
+            progbar.Step = -1;
+            progbar.Value = 300;
+            progbar.Style = ProgressBarStyle.Continuous;
+            Game.ActiveForm.Controls.Add(progbar);
+            label2.Size = new Size(150, 75);
+            label2.Location = new Point(x - 175, y-100);
+            label2.Text = "300";
+            label2.Font = new Font("Bauhaus 93", 16);
+            label2.ForeColor = Color.Green;
+            Game.ActiveForm.Controls.Add(label2);           
         }
         private static void MouseEnter1(object sender, EventArgs e)
         {
@@ -75,7 +92,7 @@ namespace Runite
         {
             for (int i = 0; i < 15; i++)
                 for (int j = 0; j < 10; j++)
-                    Form1.ActiveForm.Controls.Remove(tiles[i, j]);      
+                    Game.ActiveForm.Controls.Remove(tiles[i, j]);      
         }
         public static void Engage(Tile tile)
         {
@@ -136,17 +153,27 @@ namespace Runite
                                 }
                             }
                             Form.ActiveForm.Refresh();
-                            System.Threading.Thread.Sleep(100);
+                            System.Threading.Thread.Sleep(50);
                             tiles[0, j].Empty = false;
                             tiles[0, j].currentRune = new Rune(shuffle.Next(100));
                             tiles[0, j].BackColor = tiles[0, j].currentRune.color;
+                            tiles[0, j].BorderStyle = BorderStyle.FixedSingle;
                         } while (tiles[i, j].Empty);
                 
+            }
+            for (int j = 0; j < 10; j++)
+            {
+                if(tiles[0,j].Empty)
+                {
+                    tiles[0, j].Empty = false;
+                    tiles[0, j].currentRune = new Rune(shuffle.Next(100));
+                    tiles[0, j].BackColor = tiles[0, j].currentRune.color;
+                }
             }
             Form.ActiveForm.Refresh();
             score += selected.Count * selected.Count * 10;
             Disengage();
-            label1.Text="SCORE:\n     "+Convert.ToString(score);
+            label1.Text="SCORE:\n"+Convert.ToString(score);
         }
         public static bool InRange(Tile a, Tile b)
         {
@@ -175,7 +202,7 @@ namespace Runite
             foreach (Tile t in selected)
             {
                 t.Selected = false;
-                t.BorderStyle = BorderStyle.None;
+                t.BorderStyle = BorderStyle.FixedSingle;
             } 
             selected.Clear();
             currentType = null;
@@ -183,7 +210,7 @@ namespace Runite
         public static void Deselect()
         {
             lastTile.Selected = false;
-            lastTile.BorderStyle = BorderStyle.None;
+            lastTile.BorderStyle = BorderStyle.FixedSingle;
             selected.Remove(lastTile);
             lastTile = selected[selected.Count-1];          
         }
